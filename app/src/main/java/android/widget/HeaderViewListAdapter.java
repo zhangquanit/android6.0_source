@@ -127,6 +127,10 @@ public class HeaderViewListAdapter implements WrapperListAdapter, Filterable {
         return false;
     }
 
+    /**
+     * 包装后的Adapter的总数包括headview和footview的个数
+     * @return
+     */
     public int getCount() {
         if (mAdapter != null) {
             return getFootersCount() + getHeadersCount() + mAdapter.getCount();
@@ -230,12 +234,12 @@ public class HeaderViewListAdapter implements WrapperListAdapter, Filterable {
         if (mAdapter != null && position >= numHeaders) {
             int adjPosition = position - numHeaders;
             int adapterCount = mAdapter.getCount();
-            if (adjPosition < adapterCount) {
+            if (adjPosition < adapterCount) {  //只有adapter才有itemViewType
                 return mAdapter.getItemViewType(adjPosition);
             }
         }
 
-        return AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
+        return AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER;  //headview 或  footview
     }
 
     public int getViewTypeCount() {

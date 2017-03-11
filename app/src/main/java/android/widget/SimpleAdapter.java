@@ -31,16 +31,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 绑定一个map数据结构的layout
+ * from[]:map的key集合
+ * to[]:绑定到的view的id
+ *
  * An easy adapter to map static data to views defined in an XML file. You can specify the data
  * backing the list as an ArrayList of Maps. Each entry in the ArrayList corresponds to one row
  * in the list. The Maps contain the data for each row. You also specify an XML file that
  * defines the views used to display the row, and a mapping from keys in the Map to specific
  * views.
- *
+ * <p/>
  * Binding data to views occurs in two phases. First, if a
  * {@link android.widget.SimpleAdapter.ViewBinder} is available,
  * {@link ViewBinder#setViewValue(android.view.View, Object, String)}
- * is invoked. If the returned value is true, binding has occurred. 
+ * is invoked. If the returned value is true, binding has occurred.
  * If the returned value is false, the following views are then tried in order:
  * <ul>
  * <li> A view that implements Checkable (e.g. CheckBox).  The expected bind value is a boolean.
@@ -56,14 +60,16 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
 
     private int[] mTo;
     private String[] mFrom;
-    private ViewBinder mViewBinder;
+    private ViewBinder mViewBinder;//数据绑定器
 
-    private List<? extends Map<String, ?>> mData;
+    private List<? extends Map<String, ?>> mData;//数据
 
-    private int mResource;
+    private int mResource; //layout
     private int mDropDownResource;
 
-    /** Layout inflater used for {@link #getDropDownView(int, View, ViewGroup)}. */
+    /**
+     * Layout inflater used for {@link #getDropDownView(int, View, ViewGroup)}.
+     */
     private LayoutInflater mDropDownInflater;
 
     private SimpleFilter mFilter;
@@ -72,20 +78,20 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
     /**
      * Constructor
      *
-     * @param context The context where the View associated with this SimpleAdapter is running
-     * @param data A List of Maps. Each entry in the List corresponds to one row in the list. The
-     *        Maps contain the data for each row, and should include all the entries specified in
-     *        "from"
+     * @param context  The context where the View associated with this SimpleAdapter is running
+     * @param data     A List of Maps. Each entry in the List corresponds to one row in the list. The
+     *                 Maps contain the data for each row, and should include all the entries specified in
+     *                 "from"
      * @param resource Resource identifier of a view layout that defines the views for this list
-     *        item. The layout file should include at least those named views defined in "to"
-     * @param from A list of column names that will be added to the Map associated with each
-     *        item.
-     * @param to The views that should display column in the "from" parameter. These should all be
-     *        TextViews. The first N views in this list are given the values of the first N columns
-     *        in the from parameter.
+     *                 item. The layout file should include at least those named views defined in "to"
+     * @param from     A list of column names that will be added to the Map associated with each
+     *                 item.
+     * @param to       The views that should display column in the "from" parameter. These should all be
+     *                 TextViews. The first N views in this list are given the values of the first N columns
+     *                 in the from parameter.
      */
     public SimpleAdapter(Context context, List<? extends Map<String, ?>> data,
-            @LayoutRes int resource, String[] from, @IdRes int[] to) {
+                         @LayoutRes int resource, String[] from, @IdRes int[] to) {
         mData = data;
         mResource = mDropDownResource = resource;
         mFrom = from;
@@ -122,7 +128,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
     }
 
     private View createViewFromResource(LayoutInflater inflater, int position, View convertView,
-            ViewGroup parent, int resource) {
+                                        ViewGroup parent, int resource) {
         View v;
         if (convertView == null) {
             v = inflater.inflate(resource, parent, false);
@@ -148,7 +154,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
     /**
      * Sets the {@link android.content.res.Resources.Theme} against which drop-down views are
      * inflated.
-     * <p>
+     * <p/>
      * By default, drop-down views are inflated against the theme of the
      * {@link Context} passed to the adapter's constructor.
      *
@@ -193,7 +199,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
         for (int i = 0; i < count; i++) {
             final View v = view.findViewById(to[i]);
             if (v != null) {
-                final Object data = dataSet.get(from[i]);
+                final Object data = dataSet.get(from[i]);//获取value
                 String text = data == null ? "" : data.toString();
                 if (text == null) {
                     text = "";
@@ -201,9 +207,14 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
 
                 boolean bound = false;
                 if (binder != null) {
-                    bound = binder.setViewValue(v, data, text);
+                    bound = binder.setViewValue(v, data, text);//给View绑定值，用户可使用ViewBinder自己来绑定值
                 }
 
+                /*使用SimpleAdapter来绑定值
+                 1、Check类型的View：
+                 2、TextView：
+                 3、ImageView：值必须是图片资源id
+                 */
                 if (!bound) {
                     if (v instanceof Checkable) {
                         if (data instanceof Boolean) {
@@ -223,7 +234,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
                         setViewText((TextView) v, text);
                     } else if (v instanceof ImageView) {
                         if (data instanceof Integer) {
-                            setViewImage((ImageView) v, (Integer) data);                            
+                            setViewImage((ImageView) v, (Integer) data);
                         } else {
                             setViewImage((ImageView) v, text);
                         }
@@ -240,7 +251,6 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
      * Returns the {@link ViewBinder} used to bind data to views.
      *
      * @return a ViewBinder or null if the binder does not exist
-     *
      * @see #setViewBinder(android.widget.SimpleAdapter.ViewBinder)
      */
     public ViewBinder getViewBinder() {
@@ -251,8 +261,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
      * Sets the binder used to bind data to views.
      *
      * @param viewBinder the binder used to bind data to views, can be null to
-     *        remove the existing binder
-     *
+     *                   remove the existing binder
      * @see #getViewBinder()
      */
     public void setViewBinder(ViewBinder viewBinder) {
@@ -263,13 +272,12 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
      * Called by bindView() to set the image for an ImageView but only if
      * there is no existing ViewBinder or if the existing ViewBinder cannot
      * handle binding to an ImageView.
-     *
+     * <p/>
      * This method is called instead of {@link #setViewImage(ImageView, String)}
      * if the supplied data is an int or Integer.
      *
-     * @param v ImageView to receive an image
+     * @param v     ImageView to receive an image
      * @param value the value retrieved from the data set
-     *
      * @see #setViewImage(ImageView, String)
      */
     public void setViewImage(ImageView v, int value) {
@@ -280,18 +288,17 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
      * Called by bindView() to set the image for an ImageView but only if
      * there is no existing ViewBinder or if the existing ViewBinder cannot
      * handle binding to an ImageView.
-     *
+     * <p/>
      * By default, the value will be treated as an image resource. If the
      * value cannot be used as an image resource, the value is used as an
      * image Uri.
-     *
+     * <p/>
      * This method is called instead of {@link #setViewImage(ImageView, int)}
      * if the supplied data is not an int or Integer.
      *
-     * @param v ImageView to receive an image
+     * @param v     ImageView to receive an image
      * @param value the value retrieved from the data set
-     *
-     * @see #setViewImage(ImageView, int) 
+     * @see #setViewImage(ImageView, int)
      */
     public void setViewImage(ImageView v, String value) {
         try {
@@ -306,13 +313,17 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
      * there is no existing ViewBinder or if the existing ViewBinder cannot
      * handle binding to a TextView.
      *
-     * @param v TextView to receive text
+     * @param v    TextView to receive text
      * @param text the text to be set for the TextView
      */
     public void setViewText(TextView v, String text) {
         v.setText(text);
     }
 
+    /**
+     * 返回数据过滤器
+     * @return
+     */
     public Filter getFilter() {
         if (mFilter == null) {
             mFilter = new SimpleFilter();
@@ -323,7 +334,7 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
     /**
      * This class can be used by external clients of SimpleAdapter to bind
      * values to views.
-     *
+     * <p/>
      * You should use this class to bind values to views that are not
      * directly supported by SimpleAdapter or to change the way binding
      * occurs for views supported by SimpleAdapter.
@@ -335,23 +346,24 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
     public static interface ViewBinder {
         /**
          * Binds the specified data to the specified view.
-         *
+         * <p/>
          * When binding is handled by this ViewBinder, this method must return true.
          * If this method returns false, SimpleAdapter will attempts to handle
          * the binding on its own.
          *
-         * @param view the view to bind the data to
-         * @param data the data to bind to the view
+         * @param view               the view to bind the data to
+         * @param data               the data to bind to the view
          * @param textRepresentation a safe String representation of the supplied data:
-         *        it is either the result of data.toString() or an empty String but it
-         *        is never null
-         *
+         *                           it is either the result of data.toString() or an empty String but it
+         *                           is never null
          * @return true if the data was bound to the view, false otherwise
          */
         boolean setViewValue(View view, Object data, String textRepresentation);
     }
 
     /**
+     * 数据过滤器
+     * 值不是以指定prefix开头的会被过滤掉
      * <p>An array filters constrains the content of the array adapter with
      * a prefix. Each item that does not start with the supplied prefix
      * is removed from the list.</p>
@@ -363,10 +375,10 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
             FilterResults results = new FilterResults();
 
             if (mUnfilteredData == null) {
-                mUnfilteredData = new ArrayList<Map<String, ?>>(mData);
+                mUnfilteredData = new ArrayList<Map<String, ?>>(mData);//赋值一个新的List
             }
 
-            if (prefix == null || prefix.length() == 0) {
+            if (prefix == null || prefix.length() == 0) {//如果没有指定过滤的前缀
                 ArrayList<Map<String, ?>> list = mUnfilteredData;
                 results.values = list;
                 results.count = list.size();
@@ -381,20 +393,20 @@ public class SimpleAdapter extends BaseAdapter implements Filterable, ThemedSpin
                 for (int i = 0; i < count; i++) {
                     Map<String, ?> h = unfilteredValues.get(i);
                     if (h != null) {
-                        
+
                         int len = mTo.length;
 
-                        for (int j=0; j<len; j++) {
-                            String str =  (String)h.get(mFrom[j]);
-                            
-                            String[] words = str.split(" ");
+                        for (int j = 0; j < len; j++) {
+                            String str = (String) h.get(mFrom[j]);//item的值
+
+                            String[] words = str.split(" "); //以空格分隔
                             int wordCount = words.length;
-                            
+
                             for (int k = 0; k < wordCount; k++) {
                                 String word = words[k];
-                                
+
                                 if (word.toLowerCase().startsWith(prefixString)) {
-                                    newValues.add(h);
+                                    newValues.add(h); //如果以指定的prefix开头，则保留
                                     break;
                                 }
                             }
